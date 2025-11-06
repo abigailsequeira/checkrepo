@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>
+            WEBGL Triangle
+        </title>
+    </head>
+    <body>
+        <h2>RED RECTANGLE</h2>
+        <canvas id="webglCanvas" width="500" height="500"></canvas>
+        <script>
+            //get canvas and webgl context
+            const canvas=document.getElementById("webglCanvas");
+            const gl=canvas.getContext("webgl2");
+            if(!gl){
+                alert("Your browser does'nt support the WEBgl.");
+            }
+            //vertex shader
+            const vertexShaderSource=`#version 300 es
+            in vec2 aPosition;
+            void main(){
+            gl_Position=vec4(aPosition,0.0,1.0);
+            }`;
+
+            const vertexShader=gl.createShader(gl.VERTEX_SHADER);
+            gl.shaderSource(vertexShader,vertexShaderSource);
+            gl.compileShader(vertexShader);
+
+            //Fragment shader
+            const fragmentShaderSource=`#version 300 es
+            precision mediump float;
+            out vec4 fragColor;
+            void main(){
+            fragColor=vec4(0.25,0.0,0.0,1.0);//set output variable to red
+            }`;
+
+            const fragmentShader=gl.createShader(gl.FRAGMENT_SHADER);
+            gl.shaderSource(fragmentShader,fragmentShaderSource);
+            gl.compileShader(fragmentShader);
+
+            //create Program
+            const program=gl.createProgram();
+            gl.attachShader(program,vertexShader);
+            gl.attachShader(program,fragmentShader);
+            gl.linkProgram(program);
+
+            if(!gl.getProgramParameter(program,gl.LINK_STATUS)){
+                console.error("Error linking program: ",gl.getProgramInfoLog(program));
+                gl.deleteProgram(program);
+            }
+            gl.useProgram(program);
+            //Define triangle vertices
+            const triangleVertices=new Float32Array([
+                -0.5,0.5,//top leftvertex
+                1.0,0.5,//top right vertex
+                -0.5,-0.5,//bottom left vertex
+                1.0,-0.5//bottom right vertex
+            ]);
+
+            //create buffer
+            const positionBuffer=gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER,positionBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER,triangleVertices,gl.STATIC_DRAW);
+
+            //link buffer to shader attribute,seraching for aPosition that is defined in the program in the vertex shader function.
+            const aPosition=gl.getAttribLocation(program,"aPosition");
+            gl.enableVertexAttribArray(aPosition);
+            gl.vertexAttribPointer(aPosition,2,gl.FLOAT,false,0,0);
+            //clear canvas and draw
+            gl.clearColor(1.0,1.0,1.0,1.0);//white background canvas
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+
+        
+        
+        </script>
+    </body>
+</html>
