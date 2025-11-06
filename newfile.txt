@@ -1,0 +1,1 @@
+"Hello Git in a cloned file" 
